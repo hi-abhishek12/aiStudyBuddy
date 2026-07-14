@@ -1,8 +1,16 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 
 import { colors } from "@/lib/theme";
+import { useAuthStore } from "@/features/auth/auth";
 
 export default function TabsLayout() {
+
+  const initialized = useAuthStore((state) => state.initialized);
+  const session = useAuthStore((state) => state.session);
+
+  if(!initialized) return null;
+
+  
   return (
     <NativeTabs tintColor={colors.primary} minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="(library)">

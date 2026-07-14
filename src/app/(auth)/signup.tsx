@@ -1,14 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { AuthScreen } from '@/features/auth/auth'
 
 const signup = () => {
   return (
-    <View>
-      <Text>signup</Text>
-    </View>
+    <AuthScreen mode="signup"/>
   )
 }
 
 export default signup
-
-const styles = StyleSheet.create({})
