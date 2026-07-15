@@ -1,5 +1,7 @@
 import { supabase } from "@/utils/supabase";
-
+import * as DocumentPicker from "expo-document-picker";
+import { uploadPdfSource } from "@/lib/source";
+import { processSource } from "@/lib/api-client";
 
 export async function createStudySet(title: string, description?: string) {
     const {
@@ -101,8 +103,26 @@ export async function createNoteSource(
   }
 
 
-export async function pickAndUploadPdf(type : string) {
-  
+export async function pickAndUploadPdf(studySetId : string , title ? : string) {
+  const result = await DocumentPicker.getDocumentAsync({
+    type: "application/pdf",
+    copyToCacheDirectory : false,
+  });
+
+  if(result.canceled) return null;
+
+  const asset = result.assets[0];
+
+  return uploadPdfSource({
+    studySetId ,
+    title: title?.trim() || asset.name.replace(/\.pdf$/i, ""),
+    file : {
+      uri : asset.uri,
+      name : asset.name,
+      size : asset.size
+    }
+  })
+
 }
 
 
