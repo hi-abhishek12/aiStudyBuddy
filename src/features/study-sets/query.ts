@@ -28,14 +28,14 @@ export type Source = {
   updated_at: string;
 };
 
-// export type Message = {
-//   id: string;
-//   conversation_id: string;
-//   role: "user" | "assistant" | "system";
-//   content: string;
-//   metadata: Record<string, unknown> | null;
-//   created_at: string;
-// };
+export type Message = {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+};
 
 export const studySetKeys = {
   all: ["study-sets"] as const,
@@ -43,9 +43,9 @@ export const studySetKeys = {
   sources: (id: string) => ["study-sets", id, "sources"] as const,
   summary: (id: string) => ["study-sets", id, "summary"] as const,
   flashcards: (id: string) => ["study-sets", id, "flashcards"] as const,
-//   conversations: (id: string) => ["study-sets", id, "conversations"] as const,
-//   messages: (conversationId: string) =>
-//     ["conversations", conversationId, "messages"] as const,
+  conversations: (id: string) => ["study-sets", id, "conversations"] as const,
+  messages: (conversationId: string) =>
+    ["conversations", conversationId, "messages"] as const,
 };
 
 export function useStudySets() {
@@ -78,7 +78,7 @@ export function useStudySet(id: string) {
   });
 }
 
-export function useSources(studySetId: string) {
+export function useSources(studySetId: string){
   return useQuery({
     queryKey: studySetKeys.sources(studySetId),
     queryFn: async () => {
@@ -147,21 +147,21 @@ export function useLatestFlashcardDeck(studySetId: string) {
   });
 }
 
-// export function useConversations(studySetId: string) {
-//   return useQuery({
-//     queryKey: studySetKeys.conversations(studySetId),
-//     queryFn: async () => {
-//       const { data, error } = await supabase
-//         .from("conversations")
-//         .select("*, messages(count)")
-//         .eq("study_set_id", studySetId)
-//         .order("updated_at", { ascending: false });
-//       if (error) throw error;
-//       return data;
-//     },
-//     enabled: !!studySetId,
-//   });
-// }
+export function useConversations(studySetId: string) {
+  return useQuery({
+    queryKey: studySetKeys.conversations(studySetId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("*, messages(count)")
+        .eq("study_set_id", studySetId)
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!studySetId,
+  });
+}
 
 /** Prefer a conversation that already has messages; otherwise the latest one. */
 export function pickConversation(
@@ -180,21 +180,21 @@ export function pickConversation(
   return conversations[0];
 }
 
-// export function useMessages(conversationId: string) {
-//   return useQuery({
-//     queryKey: studySetKeys.messages(conversationId),
-//     queryFn: async () => {
-//       const { data, error } = await supabase
-//         .from("messages")
-//         .select("*")
-//         .eq("conversation_id", conversationId)
-//         .order("created_at", { ascending: true });
-//       if (error) throw error;
-//       return data;
-//     },
-//     enabled: !!conversationId,
-//   });
-// }
+export function useMessages(conversationId: string) {
+  return useQuery({
+    queryKey: studySetKeys.messages(conversationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!conversationId,
+  });
+}
 
 export function useInvalidateStudySet() {
   const queryClient = useQueryClient();

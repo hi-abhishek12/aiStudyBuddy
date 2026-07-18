@@ -1,20 +1,17 @@
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
+    ActivityIndicator,
+    Pressable,
+    ScrollView,
+    Text,
+    View,
 } from "react-native";
 
 import { signOut, useAuthStore } from "@/features/auth/auth";
 
-
 export default function SettingsScreen() {
   const email = useAuthStore((state) => state.session?.user.email);
   const [loading, setLoading] = useState(false);
-  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
- 
 
   async function handleSignOut() {
     setLoading(true);
@@ -25,7 +22,6 @@ export default function SettingsScreen() {
     }
   }
 
-
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -35,13 +31,19 @@ export default function SettingsScreen() {
       <View className="gap-2 rounded-2xl border border-border bg-card p-5">
         <Text className="text-sm text-muted">Signed in as</Text>
         <Text selectable className="text-base text-foreground">
-          {email}
+          {email ?? "Not available"}
         </Text>
       </View>
 
-    
-
-
+      <View className="gap-2 rounded-2xl border border-border bg-card p-5">
+        <Text className="text-base font-semibold text-foreground">
+          Study workflow
+        </Text>
+        <Text className="text-sm text-muted">
+          Create collections, add PDFs or notes, and turn them into summaries,
+          flashcards, and conversational study help in seconds.
+        </Text>
+      </View>
 
       <Pressable
         disabled={loading}

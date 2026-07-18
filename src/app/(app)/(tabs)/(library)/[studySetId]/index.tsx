@@ -1,97 +1,99 @@
-import React from "react";
 import { EmptyState } from "@/components/empty-state";
 import { SourceRow } from "@/components/source-row";
 import {
-  createNoteSource,
-  createWebSource,
-  pickAndUploadPdf,
+    createNoteSource,
+    createWebSource,
+    pickAndUploadPdf,
 } from "@/features/study-sets/actions";
 import {
-  useInvalidateStudySet,
-  useSources,
-  useStudySet,
+    useInvalidateStudySet,
+    useSources,
+    useStudySet,
 } from "@/features/study-sets/query";
+import React from "react";
 
 import { useMutation } from "@tanstack/react-query";
 import { Link, Stack, useLocalSearchParams, type Href } from "expo-router";
 import { useState } from "react";
 
 import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
 type SourceForm = "note" | "web" | null;
 
 const studySetDetailScreen = () => {
-    const { studySetId } = useLocalSearchParams<{ studySetId: string }>();
-    const invalidate = useInvalidateStudySet();
-    const { data: studySet, isLoading } = useStudySet(studySetId);
-    const { data: sources } = useSources(studySetId);
-    const [noteTitle, setNoteTitle] = useState("");
-    const [noteContent, setNoteContent] = useState("");
-    const [webUrl, setWebUrl] = useState("");
-    const [webTitle, setWebTitle] = useState("");
-    const [sourceForm, setSourceForm] = useState<SourceForm>(null);
-    const [actionError, setActionError] = useState<string | null>(null);
-  
-    const readyCount = sources?.filter((s : any) => s.status === "ready").length ?? 0;
+  const { studySetId } = useLocalSearchParams<{ studySetId: string }>();
+  const invalidate = useInvalidateStudySet();
+  const { data: studySet, isLoading } = useStudySet(studySetId);
+  const { data: sources } = useSources(studySetId);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteContent, setNoteContent] = useState("");
+  const [webUrl, setWebUrl] = useState("");
+  const [webTitle, setWebTitle] = useState("");
+  const [sourceForm, setSourceForm] = useState<SourceForm>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const readyCount =
+    sources?.filter((source : any) => source.status === "ready").length ?? 0;
+    console.log(sources)
     const hasReadySources = readyCount > 0;
 
-    const uploadMutation = useMutation({
-        mutationFn: () => pickAndUploadPdf(studySetId),
-        onSuccess: (result : unknown) => {
-          if (result) invalidate(studySetId);
-          setActionError(null);
-        },
-        onError: (err) => setActionError(err.message),
-      });
+  const uploadMutation = useMutation({
+    mutationFn: () => pickAndUploadPdf(studySetId),
+    onSuccess: (result: unknown) => {
+      if (result) invalidate(studySetId);
+      setActionError(null);
+    },
+    onError: (err: Error) => setActionError(err.message),
+  });
 
-    const noteMutation = useMutation({
-        mutationFn : () => createNoteSource(studySetId , noteTitle , noteContent),
-        onSuccess : () => {
-            invalidate(studySetId);
-            setNoteTitle("");
-            setNoteContent("");
-            setSourceForm(null);
-            setActionError(null);
-        },
-        onError : (err) => {
-            setActionError(err.message)
-        }
-    })
-    
-    const webMutation = useMutation({
-        mutationFn : () => createWebSource(studySetId , webUrl , webTitle),
-        onSuccess : () => {
-            invalidate(studySetId)
-            setWebUrl("");
-            setWebTitle("");
-            setSourceForm(null);
-            setActionError(null);
-        },
-        onError : (err) => {
-            setActionError(err.message);
-        }
-    })
+  const noteMutation = useMutation({
+    mutationFn: () => createNoteSource(studySetId, noteTitle, noteContent),
+    onSuccess: () => {
+      invalidate(studySetId);
+      setNoteTitle("");
+      setNoteContent("");
+      setSourceForm(null);
+      setActionError(null);
+    },
+    onError: (err: Error) => {
+      setActionError(err.message);
+    },
+  });
 
-    if (isLoading || !studySet) {
-        return (
-          <View className="flex-1 items-center justify-center bg-background">
-            <ActivityIndicator color="#ffc799" />
-          </View>
-        );
-      }
+  const webMutation = useMutation({
+    mutationFn: () => createWebSource(studySetId, webUrl, webTitle),
+    onSuccess: () => {
+      invalidate(studySetId);
+      setWebUrl("");
+      setWebTitle("");
+      setSourceForm(null);
+      setActionError(null);
+    },
+    onError: (err: Error) => {
+      setActionError(err.message);
+    },
+  });
 
-    const basePath = `/(app)/(tabs)/(library)/${studySetId}` as const;
- 
+  if (isLoading || !studySet) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator color="#ffc799" />
+      </View>
+    );
+  }
+
+  const basePath = `/(app)/(tabs)/(library)/${studySetId}` as const;
+
   return (
     <>
-      <Stack.Screen options={{title : studySet.title}}/>
+      <Stack.Screen options={{ title: studySet.title }} />
       <ScrollView
         className="flex-1 bg-background"
         contentContainerClassName="gap-6 p-6"
@@ -101,9 +103,13 @@ const studySetDetailScreen = () => {
           <Text className="text-base text-muted">{studySet.description}</Text>
         ) : null}
 
-        <View className="gap-3">
+        <View className="gap-3 rounded-2xl border border-border bg-card p-4">
           <Text className="text-lg font-semibold text-foreground">
             AI tools
+          </Text>
+          <Text className="text-sm text-muted">
+            Use your processed sources to create a summary, flashcards, or a
+            study chat.
           </Text>
           <View className="flex-row flex-wrap gap-2">
             <Link
@@ -125,7 +131,20 @@ const studySetDetailScreen = () => {
               href={`${basePath}/flashcards` as Href}
               asChild
               disabled={!hasReadySources}
-            ></Link>
+            >
+              <Pressable
+                disabled={!hasReadySources}
+                className="rounded-xl border border-border bg-card px-4 py-3 disabled:opacity-40"
+              >
+                <Text className="font-medium text-foreground">Flashcards</Text>
+              </Pressable>
+            </Link>
+
+            <Link href={`${basePath}/chat` as Href} asChild>
+              <Pressable className="rounded-xl border border-border bg-card px-4 py-3">
+                <Text className="font-medium text-foreground">Chat</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
 
@@ -147,19 +166,27 @@ const studySetDetailScreen = () => {
             </Pressable>
             <Pressable
               onPress={() =>
-                setSourceForm((v) => (v === "note" ? null : "note"))
+                setSourceForm((value) => (value === "note" ? null : "note"))
               }
               className="min-w-[30%] flex-1 items-center rounded-xl border border-border bg-card px-4 py-3"
             >
               <Text className="font-medium text-foreground">Add note</Text>
             </Pressable>
             <Pressable
-              onPress={() => setSourceForm((v) => (v === "web" ? null : "web"))}
+              onPress={() =>
+                setSourceForm((value) => (value === "web" ? null : "web"))
+              }
               className="min-w-[30%] flex-1 items-center rounded-xl border border-border bg-card px-4 py-3"
             >
               <Text className="font-medium text-foreground">Add URL</Text>
             </Pressable>
           </View>
+
+          {actionError ? (
+            <Text selectable className="text-sm text-danger">
+              {actionError}
+            </Text>
+          ) : null}
 
           {sourceForm === "note" ? (
             <View className="gap-3 rounded-2xl border border-border bg-card p-4">
@@ -236,7 +263,7 @@ const studySetDetailScreen = () => {
 
           {sources && sources.length > 0 ? (
             <View className="gap-2">
-              {sources.map((source) => (
+              {sources.map((source : any) => (
                 <SourceRow
                   key={source.id}
                   source={source}

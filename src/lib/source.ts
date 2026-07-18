@@ -1,4 +1,3 @@
-import LibraryLayout from "@/app/(app)/(tabs)/(library)/_layout";
 import { supabase } from "@/utils/supabase";
 import { processSource } from "./api-client";
 

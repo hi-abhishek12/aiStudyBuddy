@@ -32,6 +32,8 @@
     "expo-symbols": "~55.0.9",
     "expo-system-ui": "~55.0.19",
     "expo-web-browser": "~55.0.17",
+    "firecrawl": "^4.30.0",
+    "pdf-parse": "^2.4.5",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.6",
